@@ -154,7 +154,7 @@ def train_epoch(_train_loader, model, criterion, optimizer, epoch, prec_hist, lo
         target_var = target.cuda()
 
         # compute output
-        output = model(input_var)
+        output = model(input_var).cuda()
         loss = criterion(output, target_var)
 
         # compute gradient and do SGD step
