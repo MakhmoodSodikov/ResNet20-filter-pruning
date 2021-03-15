@@ -4,7 +4,7 @@ My repo with ResNet20 implementation and filter-level pruning experiments
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1hO1x4xUbOZhnIJAkCCkT_2Ywmj8wNTcr?usp=sharing)
 ## Структрура проекта
 
-Проект состоит из основных модулей:
+Проект состоит из основных частей:
 
 * модуля `model` с имплементацией исходников модели ResNet20, 
 * `dataloader` c имплементацией загрузчика датасета для обучения CIFAR-10,
