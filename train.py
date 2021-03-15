@@ -4,10 +4,7 @@ import torch.nn as nn
 from config import *
 from dataloader.cifar10_loader import train_loader, val_loader
 import time
-import matplotlib.pyplot as plt
-from IPython.display import clear_output
-from utils import accuracy, AverageMeter
-
+from utils import accuracy, AverageMeter, save_model, show_plots
 
 __all__ = ['train', 'validate']
 
@@ -39,41 +36,6 @@ def train(model, epochs=EPOCHS, lr=INIT_LR, required_precision=None):
         # save checkpoint and show plots
         save_model(required_precision, epoch, model, prec_hist['val'][-1])
         show_plots(optimizer.param_groups[0]['lr'], prec_hist, loss_hist)
-
-
-def save_model(required_precision, epoch, model, precision):
-
-    if epoch > 0 and epoch % 10 == 0:
-        torch.save({
-            'epoch': epoch + 1,
-            'state_dict': model.state_dict(),
-        }, 'checkpoints/checkpoint_at_{}_epoch.th'.format(epoch))
-
-    if precision >= required_precision and required_precision:
-        torch.save({
-            'state_dict': model.state_dict(),
-            'precision': precision,
-        }, 'models/best_model_{}.th'.format(precision))
-
-
-def show_plots(lr, prec_hist, loss_hist):
-
-    clear_output(True)
-    print('current lr {:.5e}'.format(lr))
-    print('Precision @ k {:.3f}'.format(prec_hist['val'][-1]))
-
-    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(18, 8))
-    ax[0].plot(loss_hist['train'], label='train loss')
-    ax[0].plot(loss_hist['val'], label='validation loss')
-    ax[0].set_xlabel('Epoch')
-    ax[0].set_title('Train loss')
-
-    ax[1].plot(prec_hist['train'], label='train accuracy')
-    ax[1].plot(prec_hist['val'], label='validation accuracy')
-    ax[1].set_xlabel('Epoch')
-    ax[1].set_title('Train accuracy')
-    plt.show()
-    plt.pause(1)
 
 
 def validate(_val_loader, model, criterion, prec_hist, loss_hist):
@@ -111,14 +73,6 @@ def validate(_val_loader, model, criterion, prec_hist, loss_hist):
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
-
-            # if i % 5 == 0:
-            #     print('Test: [{0}/{1}]\t'
-            #           'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-            #           'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-            #           'Prec@1 {top1.val:.3f} ({top1.avg:.3f})'.format(
-            #               i, len(_val_loader), batch_time=batch_time, loss=losses,
-            #               top1=top1))
 
     loss_hist['val'].append(losses.avg)
     prec_hist['val'].append(top1.avg)
@@ -169,14 +123,6 @@ def train_epoch(_train_loader, model, criterion, optimizer, epoch, prec_hist, lo
 
     loss_hist['train'].append(losses.avg)
     prec_hist['train'].append(top1.avg)
-
-    # print('Epoch: [{0}][{1}/{2}]\t'
-    #       'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-    #       'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-    #       'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-    #       'Prec@1 {top1.val:.3f} ({top1.avg:.3f})'.format(
-    #           epoch, i, len(_train_loader), batch_time=batch_time,
-    #           data_time=data_time, loss=losses, top1=top1))
 
 
 def __main__():

@@ -43,7 +43,7 @@ class BasicBlock(nn.Module):
 
         self.shortcut = nn.Sequential()
 
-        # If there is some problems with dims while changing between levels
+        # If there are some problems with dims while changing between levels
         if stride != 1 or in_planes != planes:
             self.shortcut = LambdaLayer(lambda x:
                                         F.pad(x[:, :, ::2, ::2],

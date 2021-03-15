@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import torch
+from IPython.core.display import clear_output
 from matplotlib import pyplot as plt
 from torch import nn as nn
 from torch.nn import init as init
@@ -93,7 +94,40 @@ def plot_acc_from_k(model_path, init_k=1):
         out = model(images.cuda())
         acc = float(accuracy(out, labels.cuda())[0].cpu().numpy())
         plt.plot(acc_hist)
-        plt.set_xlabel('Num clusters')
-        plt.set_title('Accuracy')
         plt.show()
         plt.pause(1)
+
+
+def save_model(required_precision, epoch, model, precision):
+
+    if epoch > 0 and epoch % 10 == 0:
+        torch.save({
+            'epoch': epoch + 1,
+            'state_dict': model.state_dict(),
+        }, 'checkpoints/checkpoint_at_{}_epoch.th'.format(epoch))
+
+    if precision >= required_precision and required_precision:
+        torch.save({
+            'state_dict': model.state_dict(),
+            'precision': precision,
+        }, 'models/best_model_{}.th'.format(precision))
+
+
+def show_plots(lr, prec_hist, loss_hist):
+
+    clear_output(True)
+    print('current lr {:.5e}'.format(lr))
+    print('Precision @ k {:.3f}'.format(prec_hist['val'][-1]))
+
+    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(18, 8))
+    ax[0].plot(loss_hist['train'], label='train loss')
+    ax[0].plot(loss_hist['val'], label='validation loss')
+    ax[0].set_xlabel('Epoch')
+    ax[0].set_title('Train loss')
+
+    ax[1].plot(prec_hist['train'], label='train accuracy')
+    ax[1].plot(prec_hist['val'], label='validation accuracy')
+    ax[1].set_xlabel('Epoch')
+    ax[1].set_title('Train accuracy')
+    plt.show()
+    plt.pause(1)

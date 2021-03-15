@@ -33,10 +33,6 @@ def filter_pruning_20(model_path, num_clusters=16):
                 else:
                     weights = LAYERS[layer][block].conv2.weight
                     LAYERS[layer][block].conv2.weight = clusterize(weights, num_clusters)
-                # print(kmeans.cluster_centers_.reshape(-1, kernel_size[0]*kernel_size[1]))
-
-    # print(model.layer1[0].conv1.weight.detach().numpy().shape)
-
     return model
 
 
@@ -82,10 +78,6 @@ def flex_num_clusters_test(model_path, num_clusters_dict):
                     weights = LAYERS[layer][block].conv2.weight
                     LAYERS[layer][block].conv2.weight = clusterize(weights, num_clusters_layer[conv_counter])
                 conv_counter += 1
-                # print(kmeans.cluster_centers_.reshape(-1, kernel_size[0]*kernel_size[1]))
-
-    # print(model.layer1[0].conv1.weight.detach().numpy().shape)
-
     return model
 
 
