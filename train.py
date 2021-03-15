@@ -18,7 +18,9 @@ def train(model, epochs=EPOCHS, lr=INIT_LR, required_precision=None):
     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=LR_MILESTONES)
     criterion = nn.CrossEntropyLoss().cuda()
 
-    prec_hist = {'train': [], 'val': []}
+    prec_hist = {'train': [],
+                 'val': []}
+
     loss_hist = {'train': [],
                  'val': []}
 
@@ -33,7 +35,6 @@ def train(model, epochs=EPOCHS, lr=INIT_LR, required_precision=None):
 
         # evaluate on validation set
         validate(_val_loader, model, criterion, prec_hist, loss_hist)
-        # prec_hist.append(prec)
 
         # save checkpoint and show plots
         save_model(required_precision, epoch, model, prec_hist['val'][-1])
@@ -59,7 +60,7 @@ def show_plots(lr, prec_hist, loss_hist):
 
     clear_output(True)
     print('current lr {:.5e}'.format(lr))
-    print('Precision @ k {:.3f}'.format(prec_hist[-1]))
+    print('Precision @ k {:.3f}'.format(prec_hist['val'][-1]))
 
     fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(18, 8))
     ax[0].plot(loss_hist['train'], label='train loss')
@@ -71,16 +72,8 @@ def show_plots(lr, prec_hist, loss_hist):
     ax[1].plot(prec_hist['val'], label='validation accuracy')
     ax[1].set_xlabel('Epoch')
     ax[1].set_title('Train accuracy')
-
-    plt.figure(figsize=(10, 12))
+    plt.show()
     plt.pause(1)
-    # plt.subplot(211)
-    # plt.gca().set_title('Loss on epoch')
-    # plt.plot(loss_hist['train'], label='Train')
-    # plt.plot(loss_hist['val'], label='Val')
-    # plt.subplot(212)
-    # plt.gca().set_title('Accuracy at top@1 on epoch')
-    # plt.plot(prec_hist)
 
 
 def validate(_val_loader, model, criterion, prec_hist, loss_hist):

@@ -6,6 +6,8 @@ from torch import nn as nn
 from torch.nn import init as init
 from config import CLASSES
 from dataloader.cifar10_loader import val_loader
+from pruning.filter_pruning import filter_pruning_20
+from IPython.display import clear_output
 
 
 class AverageMeter(object):
@@ -32,17 +34,17 @@ class AverageMeter(object):
         self.avg = self.sum / self.count
 
 
-def random_inference(model, inp, out):
+def random_inference(model):
     val_load = val_loader()
     data_iter = iter(val_load)
     images, labels = data_iter.next()
-
+    out = model(images.cuda())
     sample_num = random.randint(0, images.shape[0])
     imshow(images[sample_num])
 
     print('True label: {}'.format(CLASSES[labels[sample_num]]))
     print('Predicted label: {}'.format(CLASSES[torch.argmax(out[sample_num])]))
-    print('Accuracy: {}'.format(accuracy(out, labels.cuda())))
+    print('Accuracy on batch: {}'.format(float(accuracy(out, labels.cuda())[0].cpu().numpy())))
 
 
 def imshow(img):
@@ -78,3 +80,20 @@ def weights_init(m):
 
     if isinstance(m, nn.Linear) or isinstance(m, nn.Conv2d):
         init.kaiming_normal_(m.weight)
+
+
+def plot_acc_from_k(model_path, init_k=1):
+    acc_hist = []
+    for k in range(init_k, 32):
+        clear_output(True)
+        model = filter_pruning_20(model_path, k)
+        val_load = val_loader()
+        data_iter = iter(val_load)
+        images, labels = data_iter.next()
+        out = model(images.cuda())
+        acc = float(accuracy(out, labels.cuda())[0].cpu().numpy())
+        plt.plot(acc_hist)
+        plt.set_xlabel('Num clusters')
+        plt.set_title('Accuracy')
+        plt.show()
+        plt.pause(1)
